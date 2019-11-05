@@ -1,0 +1,6 @@
+Flask
+flask_cors
+SQLAlchemy
+psycopg2
+prometheus_flask_exporter
+gunicorn

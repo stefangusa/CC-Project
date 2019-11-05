@@ -1,0 +1,7 @@
+geocoder
+Flask
+flask_cors
+prometheus_flask_exporter
+ipaddress
+requests
+gunicorn

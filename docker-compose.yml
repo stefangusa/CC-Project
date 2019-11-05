@@ -1,0 +1,165 @@
+version: "3"
+
+services:
+  location:
+    image: stefangusa/location
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "5000:80"
+    networks:
+      - loc
+
+  ui:
+    image: stefangusa/ui
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - "/app/node_modules"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - location
+      - directions
+      - db_conn
+    networks:
+      - dbnet
+      - loc
+      - dir
+
+  directions:
+    image: stefangusa/directions
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "3001:8080"
+    networks:
+      - dir
+
+  db:
+    image: postgres:12
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=locations
+    networks:
+      - dbnet
+
+  db_conn:
+    image: stefangusa/db-conn
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - db
+    ports:
+      - "5001:80"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=locations
+    networks:
+      - dbnet
+
+  prometheus:
+    image: prom/prometheus
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - cadvisor
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "prometheus-data:/prometheus"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - prom
+
+  node_exporter:
+    image: prom/node-exporter
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "9100:9100"
+    volumes:
+      - "/proc:/host/proc"
+      - "/sys:/host/sys"
+      - "/:/rootfs"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - prom
+
+  cadvisor:
+    image: google/cadvisor
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "9101:8080"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+    networks:
+      - prom
+
+  grafana:
+    image: grafana/grafana
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    ports:
+      - "9102:3000"
+    volumes:
+      - "grafana-data:/var/lib/grafana"
+    networks:
+      - prom
+
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    stop_grace_period: 1m30s
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+volumes:
+  db-data: {}
+  prometheus-data: {}
+  grafana-data: {}
+
+networks:
+  dbnet:
+  dir:
+  loc:
+  prom:

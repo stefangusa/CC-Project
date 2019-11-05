@@ -1,0 +1,43 @@
+.App {
+  background-color: #282c34;
+  min-height: 100vh;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.App-header {
+  text-align: center;
+  font-size: calc(10px + 2vmin);
+}
+
+input, select  {
+  border:2px solid #ccc;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  font-size: 24px;
+  margin: 10px 20px;
+}
+
+button {
+  padding: 3px 15px;
+  margin: 10px 20px;
+  background:#ccf;
+  border:0 none;
+  cursor:pointer;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  font-size: 24px;
+}
+
+#left, #mapDiv, #right {
+  display: inline-block;
+}
+
+#left {
+  float: left;
+}
+
+#right {
+  float: right;
+}
