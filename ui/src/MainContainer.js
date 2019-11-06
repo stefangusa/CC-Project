@@ -13,7 +13,7 @@ const renderSuggestion = suggestion => (
 
 const getSuggestionValue = suggestion => suggestion;
 
-const ADDR = '172.31.17.33';
+const ADDR = '3.121.110.93';
 
 class MainContainer extends React.Component {
 
@@ -22,6 +22,7 @@ class MainContainer extends React.Component {
         dest: "",
         travel_mode: "DRIVING",
         suggestions: [],
+        all_locations: [],
         value: ""
     };
 
@@ -64,7 +65,7 @@ class MainContainer extends React.Component {
         e.preventDefault();
 
         let thisApp = this;
-        let URL = `http://${ADDR}/insert`;
+        let URL = `http://${ADDR}:5001/insert`;
 
         let body = new FormData();
         body.append('ip', this.state.ip);

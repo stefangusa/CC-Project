@@ -1,6 +1,5 @@
 from flask import Flask, request
 from flask_cors import CORS
-from sqlalchemy.exc import IntegrityError
 from prometheus_flask_exporter import PrometheusMetrics
 import json
 
@@ -21,11 +20,11 @@ def insert():
     data = request.form
 
     location = Location(ip=data['ip'], location=data['dest'].lower())
-    try:
+
+    if not db_session.query(Location).filter(Location.ip == data['ip']).filter(
+            Location.location == data['dest']).first():
         db_session.add(location)
         db_session.commit()
-    except IntegrityError:
-        pass
 
     return "Success", SUCCESS
 
@@ -43,4 +42,4 @@ def success():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=80)
