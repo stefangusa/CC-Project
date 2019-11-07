@@ -13,7 +13,7 @@ const renderSuggestion = suggestion => (
 
 const getSuggestionValue = suggestion => suggestion;
 
-const ADDR = '3.121.110.93';
+const ADDR = '192.168.99.100';
 
 class MainContainer extends React.Component {
 

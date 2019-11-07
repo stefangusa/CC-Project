@@ -82,6 +82,9 @@ services:
         condition: on-failure
     depends_on:
       - cadvisor
+      - node_exporter
+      - db_conn
+      - location
     ports:
       - "9090:9090"
     volumes:
@@ -137,6 +140,8 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=secret
+    depends_on:
+      - prometheus
     ports:
       - "9102:3000"
     volumes:
